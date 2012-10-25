@@ -401,7 +401,7 @@ wunderlist.account.login = function() {
 				else if (xhrobject.status == 200)
 				{
 					var response = JSON.parse(response_data);
-
+					console.log(response);
 					switch (response.code)
 					{
 						case wunderlist.account.status_codes.LOGIN_SUCCESS:
