@@ -223,11 +223,14 @@ $(document).ready(function() {
     // Fixes a problem with webkit and jquery sortable icon
     document.onselectstart = function () {return false;};
 
-	// If program has been opened 5 times, open the invite dialog
-	runtime = Titanium.App.Properties.getString('runtime');
-	if(runtime % 10 == 0 && settings.invited == 'false')
-		wunderlist.account.showInviteDialog();
-	
+        /*
+            No more nagging! (Sean Poulter)
+	        // If program has been opened 5 times, open the invite dialog
+	        runtime = Titanium.App.Properties.getString('runtime');
+	        if(runtime % 10 == 0 && settings.invited == 'false')
+		        wunderlist.account.showInviteDialog();
+	*/
+
 	$('a.showhelp').bind('click', function() {
 		dialogs.showHelpDialog();
 	});
