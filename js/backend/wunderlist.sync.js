@@ -561,3 +561,48 @@ wunderlist.sync.checkForUnsyncedElements = function(type) {
 		dialogs.showErrorDialog(wunderlist.language.data.unsynced_data);
 	}
 };
+
+/**
+ * Initiate synchronization with mindmap files from XMind
+ *
+ * @author Sean Poulter
+ */
+wunderlist.sync.syncWithXMind = function() {
+        var props = {   multiple: true,
+                        types: ['xmind'],
+                        typesDescription: 'All Supported XMind Files (*.xmind)',
+                        path: Titanium.Filesystem.getUserDirectory()
+                    };
+        Titanium.UI.openFileChooserDialog(function (files) {
+                if (files.length) {
+                        for (ifile = 0; ifile < files.length; ifile++) {
+                                // Add to the XMind menu
+                                var filenameString = files[ifile].replace(/^.*[\\\/]/, '');
+                                menu.xmindMenuItem.addItem(filenameString);
+                                // TODO:@Sean Add action if selected.
+
+                                // Unzip and Process
+                                var unzippedMap = Titanium.Filesystem.createTempDirectory();
+                                Titanium.Codec.extractZip(files[ifile], unzippedMap, function() {
+                                        var mapContentFile = Titanium.Filesystem.getFile(unzippedMap, 'content.xml');
+                                        if (mapContentFile.isFile()) {
+                                                wunderlist.sync.processXMindContent(files[ifile], filenameString, mapContentFile);
+                                        }
+                                        else {
+                                                dialogs.showErrorDialog(wunderlist.language.data.sync_xmind_file_invalid);
+                                        }
+                                });
+                        }
+                }
+        }, props);
+};
+
+/**
+ * Process XMind mindmap XML to extract task data
+ *
+ * @author Sean Poulter
+ */
+wunderlist.sync.processXMindContent = function(path, name, file) {
+        // Load the map XML
+        // TODO:@Sean Implement XML parsing.
+};
