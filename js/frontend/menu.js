@@ -1,5 +1,8 @@
 var menu = menu || {};
 
+// Synchronization menu items
+menu.xmindMenuItem = null
+
 /**
  * Reset position of Wunderlist (Mac)
  *
@@ -39,6 +42,7 @@ menu.reset_note_window = function() {
  * @author Christian Reber
  * @author Dennis Schneider
  * @author Daniel Marschner
+ * @author Sean Poulter
  */
 menu.initialize = function() {
 	var new_menu          = Titanium.UI.createMenu();
@@ -126,10 +130,9 @@ menu.initialize = function() {
 	downloadsMenuItem.addItem('Windows', function () { Titanium.Desktop.openURL('http://www.6wunderkinder.com/wunderlist') });
 
         // Synchronization Menu
-        var xmindMenuItem = syncMenuItem.addItem('XMind');
-        xmindItem = xmindMenuItem.addItem(wunderlist.language.data.sync_xmind_file_prompt,
-                                          function() { /* prompt stub; */ menu.refocus(); });
-        xmindMenuItem.addSeparatorItem();
+        menu.xmindMenuItem = syncMenuItem.addItem('XMind');
+        menu.xmindMenuItem.addItem(wunderlist.language.data.sync_xmind_file_prompt, function() { wunderlist.sync.syncWithXMind(); menu.refocus(); });
+        menu.xmindMenuItem.addSeparatorItem();
 
 	menu.remove();
 	Titanium.UI.setMenu(new_menu);
