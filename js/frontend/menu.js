@@ -49,7 +49,7 @@ menu.initialize = function() {
 	var accountMenuItem	  = new_menu.addItem(wunderlist.language.data.account);
 	var extraMenuItem	  = new_menu.addItem(wunderlist.language.data.settings);
 	var downloadsMenuItem = new_menu.addItem(wunderlist.language.data.downloads);
-        var syncMenuItem = new_menu.addItem(wunderlist.language.data.synchronize);
+	var syncMenuItem = new_menu.addItem(wunderlist.language.data.synchronize);
 	var aboutUsMenuItem   = new_menu.addItem(wunderlist.language.data.about_us);
 
 	accountMenuItem.addItem(wunderlist.language.data.invitation, function() { wunderlist.account.showInviteDialog(); menu.refocus(); });
@@ -129,10 +129,10 @@ menu.initialize = function() {
 	downloadsMenuItem.addItem('Mac OSX', function () { Titanium.Desktop.openURL('http://www.6wunderkinder.com/wunderlist') });
 	downloadsMenuItem.addItem('Windows', function () { Titanium.Desktop.openURL('http://www.6wunderkinder.com/wunderlist') });
 
-        // Synchronization Menu
-        menu.xmindMenuItem = syncMenuItem.addItem('XMind');
-        menu.xmindMenuItem.addItem(wunderlist.language.data.sync_xmind_file_prompt, function() { wunderlist.sync.syncWithXMind(); menu.refocus(); });
-        menu.xmindMenuItem.addSeparatorItem();
+	// Synchronization Menu
+	menu.xmindMenuItem = syncMenuItem.addItem('XMind');
+	menu.xmindMenuItem.addItem(wunderlist.language.data.sync_xmind_file_prompt, function() { wunderlist.sync.syncWithXMind(); menu.refocus(); });
+	menu.xmindMenuItem.addSeparatorItem();
 
 	menu.remove();
 	Titanium.UI.setMenu(new_menu);

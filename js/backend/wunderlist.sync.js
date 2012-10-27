@@ -8,6 +8,9 @@
 
 wunderlist.sync = wunderlist.sync || {};
 
+wunderlist.sync.xmind_sep = ' > ';
+wunderlist.sync.xmind_topic_newline = '; ';
+
 /**
  * Initializes the sync class
  *
@@ -568,33 +571,34 @@ wunderlist.sync.checkForUnsyncedElements = function(type) {
  * @author Sean Poulter
  */
 wunderlist.sync.syncWithXMind = function() {
-        var props = {   multiple: true,
-                        types: ['xmind'],
-                        typesDescription: 'All Supported XMind Files (*.xmind)',
-                        path: Titanium.Filesystem.getUserDirectory()
-                    };
-        Titanium.UI.openFileChooserDialog(function (files) {
-                if (files.length) {
-                        for (ifile = 0; ifile < files.length; ifile++) {
-                                // Add to the XMind menu
-                                var filenameString = files[ifile].replace(/^.*[\\\/]/, '');
-                                menu.xmindMenuItem.addItem(filenameString);
-                                // TODO:@Sean Add action if selected.
+	var props = {	multiple: true,
+					types: ['xmind'],
+					typesDescription: 'All Supported XMind Files (*.xmind)',
+					path: Titanium.Filesystem.getUserDirectory()
+	};
 
-                                // Unzip and Process
-                                var unzippedMap = Titanium.Filesystem.createTempDirectory();
-                                Titanium.Codec.extractZip(files[ifile], unzippedMap, function() {
-                                        var mapContentFile = Titanium.Filesystem.getFile(unzippedMap, 'content.xml');
-                                        if (mapContentFile.isFile()) {
-                                                wunderlist.sync.processXMindContent(files[ifile], filenameString, mapContentFile);
-                                        }
-                                        else {
-                                                dialogs.showErrorDialog(wunderlist.language.data.sync_xmind_file_invalid);
-                                        }
-                                });
-                        }
-                }
-        }, props);
+	Titanium.UI.openFileChooserDialog(function (files) {
+		if (files.length) {
+			for (ifile = 0; ifile < files.length; ifile++) {
+				// Add to the XMind menu
+				var filenameString = files[ifile].replace(/^.*[\\\/]/, '');
+				menu.xmindMenuItem.addItem(filenameString);
+				// TODO:@Sean Add action if selected.
+
+				// Unzip and Process
+				var unzippedMap = Titanium.Filesystem.createTempDirectory();
+				Titanium.Codec.extractZip(files[ifile], unzippedMap, function() {
+					var mapContentFile = Titanium.Filesystem.getFile(unzippedMap, 'content.xml');
+					if (mapContentFile.isFile()) {
+						wunderlist.sync.processXMindContent(files[ifile], filenameString, mapContentFile);
+					}
+					else {
+						dialogs.showErrorDialog(wunderlist.language.data.sync_xmind_file_invalid);
+					}
+				});
+			}
+		}
+	}, props);
 };
 
 /**
@@ -602,7 +606,62 @@ wunderlist.sync.syncWithXMind = function() {
  *
  * @author Sean Poulter
  */
-wunderlist.sync.processXMindContent = function(path, name, file) {
-        // Load the map XML
-        // TODO:@Sean Implement XML parsing.
+wunderlist.sync.processXMindContent = function(contentPath, contentFilename, contentFile) {
+	// Read the map XML
+	var contentXML = contentFile.read();
+	var $map = $($.parseXML(contentXML));
+
+	// Process the XML with JQuery
+	sheetNodes = $map.find('sheet').each(function() {
+		var sheetName = $(this).children('title').text();
+		$($(this).children('topic')).find('extension[provider="org.xmind.ui.taskInfo"]').each(function() {
+			// nodes
+			var taskTopicNode = $($(this).parent().parent());
+			var taskParents = $(taskTopicNode.parentsUntil('sheet > topic','topic'));
+
+			// task properties
+			var taskName = taskTopicNode.children('title').text();
+			var startDate = $(this).children('content').children('start-date').text();
+			var endDate = $(this).children('content').children('end-date').text();
+
+			// task and inherited properties from parents
+			var isCancelled = false;
+			var isImportant = false;
+			var isIncubating = false;
+			var assigneeArray = [];
+			taskTopicNode.parentsUntil('sheet > topic', 'topic').andSelf().each(function() {
+				$(this).children('labels').children('label').each(function() {
+					var labelText = $(this).text();
+					if (!isCancelled && labelText.match(/^#cancelled/)) { isCancelled = true; }
+					if (!isImportant && labelText.match(/^#important/)) { isImportant = true; }
+					if (!isIncubating && labelText.match(/^#incubating/)) { isIncubating = true; }
+					if (labelText.match(/^@.*/) && (assigneeArray.indexOf(labelText) == -1)) {
+						assigneeArray.push(labelText);
+					}
+				});
+			});
+			var isDone = ((taskTopicNode.find('progress').text() == '100') ||
+						  (taskTopicNode.find('marker-ref[marker-id="task-done"]').length) ||
+						  isCancelled);
+
+			// generate list name
+			var list = sheetName + wunderlist.sync.xmind_sep + taskTopicNode.parentsUntil('sheet','topic').last().children('title').text() + ' (' + contentFilename + ')';
+			list = list.replace(/[\r\n]+/gm, wunderlist.sync.xmind_topic_newline).replace(/[\r\n]/gm, wunderlist.sync.xmind_topic_newline);
+
+			// generate task name
+			var topicHierarcy = taskName;
+			taskParents.each(function() {
+				var titleChild = $(this).children('title');
+				if (titleChild.length) {
+					topicHierarcy = titleChild.text() + wunderlist.sync.xmind_sep + topicHierarcy;
+				}
+			});
+			var task = (isCancelled? '(cancelled) ':'') + (isIncubating? '(incubate) ':'') + topicHierarcy + (endDate.length? ' (' + endDate.substring(0,10) + ')':'');
+			task = task.replace(/[\r\n]+/gm, wunderlist.sync.xmind_topic_newline).replace(/[\r\n]/gm, wunderlist.sync.xmind_topic_newline);
+
+			// act on the tasks found
+			// TODO:@Sean Potential issues:
+			//		1. Date format with specific time.  Debug with (startDate.length > 10 || endDate.length > 10)
+		});
+    });
 };
