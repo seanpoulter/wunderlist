@@ -623,6 +623,7 @@ wunderlist.sync.processXMindContent = function(contentPath, contentFilename, con
 			var taskName = taskTopicNode.children('title').text();
 			var startDate = $(this).children('content').children('start-date').text();
 			var endDate = $(this).children('content').children('end-date').text();
+			var timestamp = taskTopicNode.attr('timestamp');
 
 			// task and inherited properties from parents
 			var isCancelled = false;
