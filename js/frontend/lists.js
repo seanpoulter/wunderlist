@@ -38,11 +38,11 @@ bindListAddMode = function() {
 /**
  * Adds a new list on clicking the add button
  *
- * @author Dennis Schneider
+ * @author Dennis Schneider, Sean Poulter
  */
-addList = function() {
+addList = function(listName) {
 	// Add new list
-    $('div#lists').append(html.generateNewListElementHTML());
+    $('div#lists').append(html.generateNewListElementHTML('', listName));
 
     // Hide add button
     $('h3 .add').hide();
@@ -57,6 +57,30 @@ addList = function() {
 	setTimeout(function() { listShortcutListener = 0 }, 50);
 
 	makeListsSortable();
+};
+
+/**
+ * Bypass the UI to add a list
+ *
+ * @author Sean Poulter
+ */
+addListWithoutUI = function(listName, allowDuplicates) {
+	if (allowDuplicates == undefined || allowDuplicates == '') {
+		allowDuplicates = false;
+	}
+
+	if (allowDuplicates || ($('a.list:contains("' + listName + '")').length == 0)) {
+		wunderlist.timer.pause();
+		listEventListener = true;
+
+		addList(listName);
+		var listElement = $('a.list input[value="' + listName + '"]').parent('a');
+		var list_id     = listElement.attr('id').replace('list', '');
+
+		wunderlist.timer.resume();
+		saveNewList(listElement);
+		openList(0);
+	}
 };
 
 /**
