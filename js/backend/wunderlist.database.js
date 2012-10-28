@@ -1136,3 +1136,18 @@ wunderlist.database.getLastDoneTasks = function(list_id) {
 			$('#content').append('<button id="hide_older_tasks">' + wunderlist.language.data.hide_older_tasks + '</button>');
 	}
 };
+
+/**
+ * Returns the list id given the name, or -1 on error.
+ *
+ * @author Sean Poulter
+ */
+wunderlist.database.getListIdFromName = function(listName) {
+	var result = wunderlist.database.db.execute("SELECT id FROM lists WHERE name = ? AND lists.deleted = 0", wunderlist.database.convertString(listName));
+	if (result.rowCount() > 1) {
+		return -1;
+	}
+	else {
+		return (result.isValidRow()) ? parseInt(result.field(0)) : -1;
+	}
+};
