@@ -646,8 +646,8 @@ wunderlist.sync.processXMindContent = function(contentPath, contentFilename, con
 						  isCancelled);
 
 			// generate list name
-			var list = sheetName + wunderlist.sync.xmind_sep + taskTopicNode.parentsUntil('sheet','topic').last().children('title').text() + ' (' + contentFilename + ')';
-			list = list.replace(/[\r\n]+/gm, wunderlist.sync.xmind_topic_newline).replace(/[\r\n]/gm, wunderlist.sync.xmind_topic_newline);
+			var listString = sheetName + wunderlist.sync.xmind_sep + taskTopicNode.parentsUntil('sheet','topic').last().children('title').text() + ' (' + contentFilename + ')';
+			listString = listString.replace(/[\r\n]+/gm, wunderlist.sync.xmind_topic_newline).replace(/[\r\n]/gm, wunderlist.sync.xmind_topic_newline);
 
 			// generate task name
 			var topicHierarcy = taskName;
@@ -657,8 +657,8 @@ wunderlist.sync.processXMindContent = function(contentPath, contentFilename, con
 					topicHierarcy = titleChild.text() + wunderlist.sync.xmind_sep + topicHierarcy;
 				}
 			});
-			var task = (isCancelled? '(cancelled) ':'') + (isIncubating? '(incubate) ':'') + topicHierarcy + (endDate.length? ' (' + endDate.substring(0,10) + ')':'');
-			task = task.replace(/[\r\n]+/gm, wunderlist.sync.xmind_topic_newline).replace(/[\r\n]/gm, wunderlist.sync.xmind_topic_newline);
+			var taskString = (isCancelled? '(cancelled) ':'') + (isIncubating? '(incubate) ':'') + topicHierarcy + (endDate.length? ' (' + endDate.substring(0,10) + ')':'');
+			taskString = taskString.replace(/[\r\n]+/gm, wunderlist.sync.xmind_topic_newline).replace(/[\r\n]/gm, wunderlist.sync.xmind_topic_newline);
 
 			// act on the tasks found
 			// TODO:@Sean Potential issues:
