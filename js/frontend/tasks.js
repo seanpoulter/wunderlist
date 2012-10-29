@@ -20,8 +20,8 @@ tasks.addNewTaskToTop = false;
  */
 tasks.add = function(list_id, task_name, important, timestamp) {
 	if (arguments.length) {
-		if (important != undefined && important != '') {
-			important == true ? important = 1 : important = 0;
+		if (typeof(important) == 'boolean') {
+			important = Number(important);
 		}
 	}
 
