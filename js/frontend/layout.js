@@ -135,22 +135,41 @@ rotate = function(degree) {
     },5);
 };
 
-startSyncAnimation = function() {
+/**
+ * Updated with optional argument to indicate synchronization with a specific file.
+ *
+ * @param {String} filename Optional filename indicated to the user.
+ * @author Sean Poulter
+ */
+startSyncAnimation = function(filename) {
+	var tooltipString = '';
+	if (arguments.length) {
+		tooltipString = wunderlist.language.data.sync_xmind_file_tooltip.replace(/<map>/, '<b>' + filename + '</b>');
+	}
+	else {
+		tooltipString = wunderlist.language.data.sync;
+	}
+
 	$('#tooltip').remove();
-	$("body").append("<p id='sync_tooltip'>" + wunderlist.language.data.sync + "</p>");
+	$("body").append("<p id='sync_tooltip'>" + tooltipString + "</p>");
 	$("#sync_tooltip").css("bottom",41 + "px").css("left",7 + "px");
-	
+
 	if(settings.getSidebarPosition() == "left") {
 		$("#sync_tooltip").css("bottom",41 + "px").css("left",275 + "px");
 	}
-	
+
 	$("#sync_tooltip").fadeIn("fast");
 
     rotate(0);
 };
 
+/**
+ *	Updated to show 'Done' and slowly fade, with an increased delay from 1 to 2.5 seconds.
+ *	@author Sean Poulter
+ */
 stopSyncAnimation = function() {
-	$("#sync_tooltip").delay("1000").fadeOut("fast", function() {
+	$("#sync_tooltip").html(wunderlist.language.data.done);
+	$("#sync_tooltip").delay("2500").fadeOut("slow", function() {
 		$(this).remove();
 		clearTimeout(rotationTimer);
 	});

@@ -205,8 +205,9 @@ html.generateTaskHTML = function(id, name, list_id, done, important, date, note)
 
 /**
  * Returns the HTML structure of a new list (SIDEBAR)
- *
+ * Potentially broken while removing the unescaping list name.
  * @author Daniel Marschner
+ * @author Sean Poulter
  */
 html.generateNewListElementHTML = function(listId, listElementName, listElementInputClass) {
 	if(listId == undefined || listId == '')
@@ -223,7 +224,8 @@ html.generateNewListElementHTML = function(listId, listElementName, listElementI
     	html_code += "<div class='deletep'></div>";
     	html_code += "<div class='savep'></div>";
     	html_code += "<div class='editp'></div>";
-    	html_code += "<input class='" + listElementInputClass + "' maxlength='255' type='text' value='" + wunderlist.database.convertString(listElementName) + "' />";
+		// html_code += "<input class='" + listElementInputClass + "' maxlength='255' type='text' value='" + listElementName + "' />";
+		html_code += "<input class='" + listElementInputClass + "' maxlength='255' type='text' value='" + listElementName + "' />";
     	html_code += "</a>";
 
 	return html_code;

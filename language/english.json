@@ -240,5 +240,6 @@
 	"add_task_hint":			"Press ▲▼ to switch lists or Alt + Return to add task to the top",
 	"synchronize":			"Synchronize",
 	"sync_xmind_file_prompt":       "Sync with file...",
-	"sync_xmind_file_invalid":      "An error reading the XMind file occurred. Please try again."
+	"sync_xmind_file_invalid":      "An error reading the XMind file occurred. Please try again.",
+	"sync_xmind_file_tooltip":      "Synchronizing with file <map> ..."
 }

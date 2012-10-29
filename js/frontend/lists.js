@@ -69,7 +69,18 @@ addListWithoutUI = function(listName, allowDuplicates) {
 		allowDuplicates = false;
 	}
 
-	if (allowDuplicates || ($('a.list:contains("' + listName + '")').length == 0)) {
+	var listExists = false;
+	if (!allowDuplicates) {
+		$('a.list > b.sharep').each(function() {
+			if ($(this).text().indexOf(listName) != -1) {
+				listExists = true;
+				return;
+			}
+		});
+	} // duplicates not allowed
+
+	if (allowDuplicates || !listExists) {
+
 		wunderlist.timer.pause();
 		listEventListener = true;
 

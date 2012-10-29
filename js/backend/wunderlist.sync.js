@@ -585,6 +585,9 @@ wunderlist.sync.syncWithXMind = function() {
 				menu.xmindMenuItem.addItem(filenameString);
 				// TODO:@Sean Add action if selected.
 
+				// Start the synchronization animation
+				startSyncAnimation(filenameString);
+
 				// Unzip and Process
 				var unzippedMap = Titanium.Filesystem.createTempDirectory();
 				Titanium.Codec.extractZip(files[ifile], unzippedMap, function() {
@@ -662,7 +665,33 @@ wunderlist.sync.processXMindContent = function(contentPath, contentFilename, con
 
 			// act on the tasks found
 			// TODO:@Sean Potential issues:
-			//		1. Date format with specific time.  Debug with (startDate.length > 10 || endDate.length > 10)
+			//		1. Tasks with date and time. It was discovered that the backend does not support time in the Date implementation.
+			//		   If this is corrected, the tasks with a certain time specified can be found with: (startDate.length > 10 || endDate.length > 10)
+			//		2. XMind task date format in general. Is it always yyyy-mm-dd in the XML?
+
+			// add list:
+			addListWithoutUI(listString, false);
+
+			// add task:
+			//	1. Convert dates to the a parseable format, with no time (bug in Titanium Desktop SDK): yyyy/mm/dd
+			var date = new Date(startDate.substring(0,10).replace(/-/g, '\/'));
+			var timestamp  = html.getWorldWideDate(date);
+
+			//	2. Set task.note from wunderlist.database to include the assignees
+			if (assigneeArray.length) {
+				task.note = 'Involving: ' + assigneeArray + '\n';
+			}
+
+			//	3. Determine the list id.
+			var list_id = wunderlist.database.getListIdFromName(listString);
+
+			//	4. Add it.
+			tasks.add(list_id, taskString, isImportant, timestamp);
 		});
     });
+
+	// Stop the synchronization animation, sync to the cloud, and make it rain*!
+	// *Make it rain := data falling from the cloud to mobile devices.
+	stopSyncAnimation();
+	wunderlist.sync.fireSync();
 };
