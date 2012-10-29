@@ -7,161 +7,192 @@ tasks.datePickerOpen  = false;
 tasks.dateBeforEdit   = '';
 tasks.addNewTaskToTop = false;
 
-// ADD a new task to the db and frontend
-tasks.add = function() {
-	if ($("input.input-add").val() != '')
+/**
+ * ADD a new task to the db and frontend.
+ *
+ * Now with 100% more UI-free task creation.
+ *	@param list_id
+ *	@param task_name
+ *	@param important
+ *	@param timestamp
+ *
+ * @author Sean Poulter
+ */
+tasks.add = function(list_id, task_name, important, timestamp) {
+	if (arguments.length) {
+		if (important != undefined && important != '') {
+			important == true ? important = 1 : important = 0;
+		}
+	}
+
+	if (($("input.input-add").val() != '') || arguments.length > 0)
 	{
 		// Add Task to List
-		list_id       = $("ul.mainlist").attr("rel");
-		task_name     = wunderlist.database.convertString($("input.input-add").val());
-		
-		// Tasks default not be important
-		var important = 0;
-		
-		// Check if task should be prio
-		if (task_name.indexOf('*') == 0) {
-			task_name = task_name.substr(1);
-			important = 1;
+		if (!arguments.length) {
+			list_id       = $("ul.mainlist").attr("rel");
+			task_name     = wunderlist.database.convertString($("input.input-add").val());
+
+			// Tasks default not be important
+			var important = 0;
+
+			// Check if task should be prio
+			if (task_name.indexOf('*') == 0) {
+				task_name = task_name.substr(1);
+				important = 1;
+			}
+		} // !arguments.length
+		else {
+			if (important) {
+				tasks.addNewTaskToTop = true;
+			}
 		}
-		
+
 		// Trim whitespace
 		task_name = $.trim(task_name);
-		
+
 		// Init timestamp & scan for the date
-		var timestamp = 0;
-		var smartDate = wunderlist.smartScanForDate(task_name);
-		
-		// Process the smartDate results
-		if (smartDate.timestamp && smartDate.string) {
-			timestamp	= smartDate.timestamp;
-			task_name	= smartDate.string;
-			/*
-		    var day             = smartDate['day'];
-		    var monthName       = smartDate['month'];
-		    var year            = smartDate['year'];
-		    var smartDateObject = new Date();
-		    var monthNumber     = html.getMonthNumber(monthName);
-		    smartDateObject.setMonth(monthNumber);
-		    smartDateObject.setDate(day);
-		    smartDateObject.setFullYear(year);
-		    timestamp           = html.getWorldWideDate(smartDateObject);
-		    task_name           = smartDate['string'];
-			*/
-		}
-		
+		if (!arguments.length) {
+			var timestamp = 0;
+			var smartDate = wunderlist.smartScanForDate(task_name);
+
+			// Process the smartDate results
+			if (smartDate.timestamp && smartDate.string) {
+				timestamp	= smartDate.timestamp;
+				task_name	= smartDate.string;
+				/*
+				var day             = smartDate['day'];
+				var monthName       = smartDate['month'];
+				var year            = smartDate['year'];
+				var smartDateObject = new Date();
+				var monthNumber     = html.getMonthNumber(monthName);
+				smartDateObject.setMonth(monthNumber);
+				smartDateObject.setDate(day);
+				smartDateObject.setFullYear(year);
+				timestamp           = html.getWorldWideDate(smartDateObject);
+				task_name           = smartDate['string'];
+				*/
+			}
+		} // !arguments.length
+
 		if (task_name != '')
 		{
-		    if (timestamp == 0)
-		    {
-			    timestamp = $(".add .showdate").attr('rel');
-			}
+			if (!arguments.length) {
+				if (timestamp == 0)
+				{
+					timestamp = $(".add .showdate").attr('rel');
+				}
 
-			if (timestamp == undefined)
-				timestamp = 0;
-			
-			important = important || 0;
-			
-			if (isNaN(parseInt(list_id)) || $('#left a.active').length == 1)
-			{
-				var activeFilter = $('#left a.active');
-				
-				if (list_id == 'today' || activeFilter.attr('id') == 'today')
-					timestamp = html.getWorldWideDate();
-				else if (list_id == 'tomorrow' || activeFilter.attr('id') == 'tomorrow')
-					timestamp = html.getWorldWideDate() + 86400;
-				else if (list_id == 'starred' || activeFilter.attr('id') == 'starred')
-					important = 1;
-				
-				// On Filters set it to the inbox
-				list_id = 1;
-			}
-			
+				if (timestamp == undefined)
+					timestamp = 0;
+
+				important = important || 0;
+
+				if (isNaN(parseInt(list_id)) || $('#left a.active').length == 1)
+				{
+					var activeFilter = $('#left a.active');
+
+					if (list_id == 'today' || activeFilter.attr('id') == 'today')
+						timestamp = html.getWorldWideDate();
+					else if (list_id == 'tomorrow' || activeFilter.attr('id') == 'tomorrow')
+						timestamp = html.getWorldWideDate() + 86400;
+					else if (list_id == 'starred' || activeFilter.attr('id') == 'starred')
+						important = 1;
+
+					// On Filters set it to the inbox
+					list_id = 1;
+				}
+			} // !arguments.length
+
 			task.name      = task_name;
 			task.list_id   = list_id;
 			task.date      = timestamp;
 			task.important = important;
-			
-			var task_id  = task.insert();	
-			
-			var taskHTML = html.generateTaskHTML(task_id, task_name, list_id, 0, important, timestamp);
-			
-			if ($("ul.filterlist").length > 0 || $('#left a.active').length == 1)
-			{
-				var ulElement = $('ul#filterlist' + list_id);
-				
-				if (ulElement != undefined && ulElement.is('ul'))
-					if (tasks.addNewTaskToTop) {
-						//ulElement.prepend(taskHTML).find('li:first').hide().fadeIn(225);
-						if (important) {
-							$(ulElement).prepend(taskHTML).find("li:first").hide().fadeIn(225);
-						} else {
-							if ($(ulElement).find('li.more:not(.done) .fav').size() > 0) {
-								$(ulElement).find('li.more:not(.done) .fav').last().parent().after(taskHTML).next().hide().fadeIn(225);
-							} else {
+
+			var task_id  = task.insert();
+
+			// assuming that the task HTML is regenerated each time a list is selected,
+			// the HTML only needs to be generated IFF the list_id is the same as the current list
+			if (!arguments.length || (list_id == $("ul.mainlist").attr("rel"))) {
+
+				var taskHTML = html.generateTaskHTML(task_id, task_name, list_id, 0, important, timestamp);
+
+				if ($("ul.filterlist").length > 0 || $('#left a.active').length == 1)
+				{
+					var ulElement = $('ul#filterlist' + list_id);
+
+					if (ulElement != undefined && ulElement.is('ul'))
+						if (tasks.addNewTaskToTop) {
+							//ulElement.prepend(taskHTML).find('li:first').hide().fadeIn(225);
+							if (important) {
 								$(ulElement).prepend(taskHTML).find("li:first").hide().fadeIn(225);
+							} else {
+								if ($(ulElement).find('li.more:not(.done) .fav').size() > 0) {
+									$(ulElement).find('li.more:not(.done) .fav').last().parent().after(taskHTML).next().hide().fadeIn(225);
+								} else {
+									$(ulElement).prepend(taskHTML).find("li:first").hide().fadeIn(225);
+								}
+							}
+						} else {
+							if (important) {
+								if ($(ulElement).find('li.more:not(.done) .fav').size() > 0) {
+									$(ulElement).find('li.more:not(.done) .fav').last().parent().after(taskHTML).next().hide().fadeIn(225);
+								} else {
+									$(ulElement).prepend(taskHTML).find("li:last").hide().fadeIn(225);
+								}
+							} else {
+								$(ulElement).append(taskHTML).find("li:last").hide().fadeIn(225);
 							}
 						}
-					} else {
-						if (important) {
-							if ($(ulElement).find('li.more:not(.done) .fav').size() > 0) {
-								$(ulElement).find('li.more:not(.done) .fav').last().parent().after(taskHTML).next().hide().fadeIn(225);
-							} else {
-								$(ulElement).prepend(taskHTML).find("li:last").hide().fadeIn(225);
-							}
+					else
+					{
+						listHTML  = '<h3 class="clickable cursor" rel="' + list_id + '">' + $('a#list' + list_id + ' b').text() + '</h3>';
+						listHTML += '<ul id="filterlist' + list_id + '" rel="' + ulElement.attr('rel') + '" class="mainlist sortable filterlist">' + taskHTML + '</ul>';
+
+						// If adding to inbox in filter view, the inbox should be inserted before any other list
+						var theLists = wunderlist.database.getLists(list_id);
+						if (theLists[0].inbox == 1) {
+							$('div#content .add').after(listHTML);
 						} else {
-							$(ulElement).append(taskHTML).find("li:last").hide().fadeIn(225);
+							$('div#content').append(listHTML);
 						}
 					}
+				}
 				else
 				{
-					listHTML  = '<h3 class="clickable cursor" rel="' + list_id + '">' + $('a#list' + list_id + ' b').text() + '</h3>';
-					listHTML += '<ul id="filterlist' + list_id + '" rel="' + ulElement.attr('rel') + '" class="mainlist sortable filterlist">' + taskHTML + '</ul>';
-					
-					// If adding to inbox in filter view, the inbox should be inserted before any other list
-					var theLists = wunderlist.database.getLists(list_id);
-					if (theLists[0].inbox == 1) {
-						$('div#content .add').after(listHTML);
-					} else {
-						$('div#content').append(listHTML);
-					}
-				}
-			}
-			else
-			{
-				// ORDINARY LIST
-				if (tasks.addNewTaskToTop) {
-					if (important) {
-						$("ul.mainlist").prepend(taskHTML).find("li:first").hide().fadeIn(225);
-					} else {
-						if ($('ul.mainlist li.more:not(.done) .fav').size() > 0) {
-							$('ul.mainlist li.more:not(.done) .fav').last().parent().after(taskHTML).next().hide().fadeIn(225);
-						} else {
+					// ORDINARY LIST
+					if (tasks.addNewTaskToTop) {
+						if (important) {
 							$("ul.mainlist").prepend(taskHTML).find("li:first").hide().fadeIn(225);
-						}
-					}
-				} else {
-					if (important) {
-						if ($('ul.mainlist li.more:not(.done) .fav').size() > 0) {
-							$('ul.mainlist li.more:not(.done) .fav').last().parent().after(taskHTML).next().hide().fadeIn(225);
 						} else {
-							$("ul.mainlist").prepend(taskHTML).find("li:last").hide().fadeIn(225);
+							if ($('ul.mainlist li.more:not(.done) .fav').size() > 0) {
+								$('ul.mainlist li.more:not(.done) .fav').last().parent().after(taskHTML).next().hide().fadeIn(225);
+							} else {
+								$("ul.mainlist").prepend(taskHTML).find("li:first").hide().fadeIn(225);
+							}
 						}
 					} else {
-						$("ul.mainlist").append(taskHTML).find("li:last").hide().fadeIn(225);
+						if (important) {
+							if ($('ul.mainlist li.more:not(.done) .fav').size() > 0) {
+								$('ul.mainlist li.more:not(.done) .fav').last().parent().after(taskHTML).next().hide().fadeIn(225);
+							} else {
+								$("ul.mainlist").prepend(taskHTML).find("li:last").hide().fadeIn(225);
+							}
+						} else {
+							$("ul.mainlist").append(taskHTML).find("li:last").hide().fadeIn(225);
+						}
 					}
+					html.createDatepicker();
 				}
-				html.createDatepicker();
-			}
-			
-			
-			$("input.input-add").val('');
-			$(".add .showdate").remove();
 
-			tasks.totalFocusOut = false;
+				$("input.input-add").val('');
+				$(".add .showdate").remove();
 
-			// Reset DatePicker
-			$('.datepicker').val('');
-			
+				tasks.totalFocusOut = false;
+
+				// Reset DatePicker
+				$('.datepicker').val('');
+			} // UI-insert OR non-UI insert into not-active list
+
 			makeSortable();
 			filters.updateBadges();
 			html.make_timestamp_to_string();
