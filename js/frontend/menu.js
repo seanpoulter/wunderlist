@@ -1,7 +1,8 @@
 var menu = menu || {};
 
 // Synchronization menu items
-menu.xmindMenuItem = null
+menu.xmindMenuItem = null;
+menu.xmindCheckItem = null;
 
 /**
  * Reset position of Wunderlist (Mac)
@@ -131,6 +132,9 @@ menu.initialize = function() {
 
 	// Synchronization Menu
 	menu.xmindMenuItem = syncMenuItem.addItem('XMind');
+	menu.xmindCheckItem = menu.xmindMenuItem.addCheckItem(wunderlist.language.data.sync_xmind_task_endDate, function() { menu.refocus(); });
+	menu.xmindCheckItem.setState(true);
+	menu.xmindMenuItem.addSeparatorItem();
 	menu.xmindMenuItem.addItem(wunderlist.language.data.sync_xmind_file_prompt, function() { wunderlist.sync.syncWithXMind(); menu.refocus(); });
 	menu.xmindMenuItem.addSeparatorItem();
 

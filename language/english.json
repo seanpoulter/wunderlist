@@ -241,5 +241,6 @@
 	"synchronize":			"Synchronize",
 	"sync_xmind_file_prompt":       "Sync with file...",
 	"sync_xmind_file_invalid":      "An error reading the XMind file occurred. Please try again.",
-	"sync_xmind_file_tooltip":      "Synchronizing with file <map> ..."
+	"sync_xmind_file_tooltip":      "Synchronizing with file <map> ...",
+	"sync_xmind_task_endDate":      "Use task end date (if avail.)"
 }

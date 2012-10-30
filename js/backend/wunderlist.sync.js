@@ -674,7 +674,12 @@ wunderlist.sync.processXMindContent = function(contentPath, contentFilename, con
 
 			// add task:
 			//	1. Convert dates to the a parseable format, with no time (bug in Titanium Desktop SDK): yyyy/mm/dd
-			var date = new Date(startDate.substring(0,10).replace(/-/g, '\/'));
+			if (menu.xmindCheckItem.getState()) {
+				var date = new Date(endDate.substring(0,10).replace(/-/g, '\/'));
+			}
+			else {
+				var date = new Date(startDate.substring(0,10).replace(/-/g, '\/'));
+			}
 			var timestamp  = html.getWorldWideDate(date);
 
 			//	2. Set task.note from wunderlist.database to include the assignees
