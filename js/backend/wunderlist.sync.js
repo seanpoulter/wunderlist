@@ -668,7 +668,6 @@ wunderlist.sync.processXMindContent = function(contentPath, contentFilename, con
 			//		1. Tasks with date and time. It was discovered that the backend does not support time in the Date implementation.
 			//		   If this is corrected, the tasks with a certain time specified can be found with: (startDate.length > 10 || endDate.length > 10)
 			//		2. XMind task date format in general. Is it always yyyy-mm-dd in the XML?
-
 			// add list:
 			addListWithoutUI(listString, false);
 
@@ -687,10 +686,13 @@ wunderlist.sync.processXMindContent = function(contentPath, contentFilename, con
 				task.note = 'Involving: ' + assigneeArray + '\n';
 			}
 
-			//	3. Determine the list id.
+			//	3. Set task.done from wunderlist.database to include progress
+			task.done = Number(isDone);
+
+			//	4. Determine the list id.
 			var list_id = wunderlist.database.getListIdFromName(listString);
 
-			//	4. Add it.
+			//	5. Add it.
 			tasks.add(list_id, taskString, isImportant, timestamp);
 		});
     });
