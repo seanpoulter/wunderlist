@@ -638,7 +638,7 @@ wunderlist.sync.processXMindContent = function(contentPath, contentFilename, con
 					var labelText = $(this).text();
 					if (!isCancelled && labelText.match(/^#cancelled/)) { isCancelled = true; }
 					if (!isImportant && labelText.match(/^#important/)) { isImportant = true; }
-					if (!isIncubating && labelText.match(/^#incubating/)) { isIncubating = true; }
+					if (!isIncubating && labelText.match(/^#incubate/)) { isIncubating = true; }
 					if (labelText.match(/^@.*/) && (assigneeArray.indexOf(labelText) == -1)) {
 						assigneeArray.push(labelText);
 					}
