@@ -178,6 +178,7 @@ html.generateTaskHTML = function(id, name, list_id, done, important, date, note)
 	
     var unescapedName = unescape(name);
     var name          = wunderlist.replace_links(wunderlist.strip_tags(unescape(name)));
+	if (!tasks.showTagWaiting && name.match(/#(waiting(for)*|maybe)/i) && !$("input#search").val().match(/#(waiting(for)*|maybe)/i)) { return ''; };
     
     if (name == '')
          name = wunderlist.language.data.new_task;

@@ -6,6 +6,7 @@ tasks.totalFocusOut   = false;
 tasks.datePickerOpen  = false;
 tasks.dateBeforEdit   = '';
 tasks.addNewTaskToTop = false;
+tasks.showTagWaiting = false;
 
 // ADD a new task to the db and frontend
 tasks.add = function() {

@@ -45,6 +45,7 @@ menu.initialize = function() {
 	var accountMenuItem	  = new_menu.addItem(wunderlist.language.data.account);
 	var extraMenuItem	  = new_menu.addItem(wunderlist.language.data.settings);
 	var downloadsMenuItem = new_menu.addItem(wunderlist.language.data.downloads);
+	var tagsMenuItem      = new_menu.addItem("Tags");
 	var aboutUsMenuItem   = new_menu.addItem(wunderlist.language.data.about_us);
 
 	accountMenuItem.addItem(wunderlist.language.data.invitation, function() { wunderlist.account.showInviteDialog(); menu.refocus(); });
@@ -123,6 +124,8 @@ menu.initialize = function() {
 	downloadsMenuItem.addItem('Android', function () { Titanium.Desktop.openURL('http://market.android.com/details?id=com.wunderkinder.wunderlistandroid') });
 	downloadsMenuItem.addItem('Mac OSX', function () { Titanium.Desktop.openURL('http://www.6wunderkinder.com/wunderlist') });
 	downloadsMenuItem.addItem('Windows', function () { Titanium.Desktop.openURL('http://www.6wunderkinder.com/wunderlist') });
+
+	var waitingCheckItem = tagsMenuItem.addCheckItem("Show #maybe, #waiting, #waitingfor", function() { tasks.showTagWaiting = !waitingCheckItem.getState(); openList(); menu.refocus(); });
 
 	menu.remove();
 	Titanium.UI.setMenu(new_menu);
